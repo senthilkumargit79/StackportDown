@@ -1,0 +1,63 @@
+---
+# =====================================================================
+# SCON EMAIL NOTIFICATIONS
+# =====================================================================
+
+- name: Fetch staging records requiring SCON notification
+  ansible.builtin.uri:
+    url: "{{ snow_api_base }}/{{ staging_table }}?sysparm_query={{ f_ack }}=TRANSFER^{{ f_email_sent }}!=true"
+    method: GET
+    user: "{{ snow_user }}"
+    password: "{{ snow_pass }}"
+    force_basic_auth: true
+    headers:
+      Accept: "application/json"
+    return_content: true
+    status_code: 200
+  register: notify_get
+
+- name: Send SCON email and mark as sent
+  block:
+
+    - name: Send email to SCON
+      ansible.builtin.mail:
+        host:    "{{ smtp_host }}"
+        port:    "{{ smtp_port | int }}"
+        from:    "{{ mail_from }}"
+        to:      "{{ mail_to_scon }}"
+        subject: "Stack Port DOWN – TRANSFER required (Staging: {{ mailrec.sys_id }})"
+        body: |
+          SCON Team,
+
+          SNOW acknowledgement indicates TRANSFER is required.
+
+          Staging sys_id : {{ mailrec.sys_id }}
+          Status         : {{ mailrec[f_status] | default('') }}
+
+          Logs:
+          {{ mailrec[f_logs] | default('No logs') }}
+
+          Regards,
+          Automation
+      delegate_to: localhost
+
+    - name: Mark email sent in staging table
+      ansible.builtin.uri:
+        url: "{{ snow_api_base }}/{{ staging_table }}/{{ mailrec.sys_id }}"
+        method: PATCH
+        user: "{{ snow_user }}"
+        password: "{{ snow_pass }}"
+        force_basic_auth: true
+        headers:
+          Content-Type: "application/json"
+          Accept: "application/json"
+        body_format: json
+        body:
+          "{{ f_email_sent }}": true
+        status_code: 200
+
+  loop: "{{ notify_get.json.result | default([]) }}"
+  loop_control:
+    loop_var: mailrec
+    label:    "{{ mailrec.sys_id }}"
+  when: (notify_get.json.result | default([]) | length) > 0

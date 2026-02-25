@@ -1,0 +1,11 @@
+---
+# Master task list
+- name: Fetch staging records
+  include_tasks: fetch_staging.yml
+
+- name: Process staging records
+  include_tasks: process_records.yml
+  when: staging_records | length > 0
+
+- name: Process SCON notifications
+  include_tasks: notifications.yml

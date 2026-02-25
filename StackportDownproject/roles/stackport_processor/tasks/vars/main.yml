@@ -1,0 +1,4 @@
+---
+# Place environment- or environment-class specific constants here if needed.
+# Example NOC group sys_id for incident transfer:
+noc_group_sys_id: "<PUT_YOUR_NOC_GROUP_SYS_ID_HERE>"

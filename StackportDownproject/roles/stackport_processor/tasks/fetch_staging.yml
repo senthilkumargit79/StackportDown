@@ -1,0 +1,29 @@
+---
+# =====================================================================
+# FETCH STAGING RECORDS
+# =====================================================================
+
+- name: Fetch staging records in Assigned status
+  ansible.builtin.uri:
+    url: >-
+      {{ snow_api_base }}/{{ staging_table }}
+      ?sysparm_query={{ f_status }}={{ status_assigned | urlencode }}
+      &sysparm_limit={{ max_records_per_run }}
+    method: GET
+    user: "{{ snow_user }}"
+    password: "{{ snow_pass }}"
+    force_basic_auth: true
+    headers:
+      Accept: "application/json"
+    return_content: true
+    status_code: 200
+  register: staging_get
+
+- name: Set staging_records list
+  ansible.builtin.set_fact:
+    staging_records: "{{ staging_get.json.result | default([]) }}"
+
+- name: No Assigned records found
+  ansible.builtin.debug:
+    msg: "No staging records in Assigned status. Nothing to process."
+  when: staging_records | length == 0

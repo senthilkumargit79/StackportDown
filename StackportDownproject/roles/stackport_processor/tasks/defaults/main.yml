@@ -1,0 +1,41 @@
+---
+# ===== ServiceNow endpoints & tables =====
+snow_api_base: "https://<your-instance>.service-now.com/api/now/table"
+staging_table: "x_company_staging"     # your custom staging table
+incident_table: "incident"
+
+# ===== Field names used in staging/incident tables =====
+f_status: "u_status"
+f_logs: "u_logs"
+f_incident_sysid: "u_incident_sys_id"
+f_summary: "u_summary"
+f_ack: "u_ack"
+f_email_sent: "u_email_sent"
+
+# ===== Status values =====
+status_assigned: "Assigned"
+status_wip: "Work in Progress"
+status_transferred: "TRANSFER"
+status_closed: "Closed"
+
+# ===== Device defaults =====
+default_device_os: "cisco.ios.ios"
+default_port: 22
+
+# ===== Correlation logic =====
+correlation_keywords:
+  - "correlated"
+  - "duplicate"
+  - "stack port"
+  - "uplink"
+max_records_per_run: 50
+max_correlated_alerts: 5
+
+# ===== Time =====
+now_iso: "{{ ansible_date_time.iso8601 }}"
+
+# ===== Email / SMTP (placeholders) =====
+smtp_host: "smtp.example.com"
+smtp_port: 25
+mail_from: "automation@example.com"
+mail_to_scon: "scon@example.com"

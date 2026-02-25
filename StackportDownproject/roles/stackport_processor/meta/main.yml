@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  author: "Senthilkumar R"
+  description: "Processes staging records from ServiceNow, runs Cisco IOS checks, and updates/alerts accordingly."
+  license: "MIT"
+  min_ansible_version: "2.14"
+  platforms:
+    - name: "GenericLinux"
+      versions: ["all"]
+dependencies: []
